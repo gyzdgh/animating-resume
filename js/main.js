@@ -1,19 +1,25 @@
 // 把code写到#code和style标签里面
 function writeCss(prefix,code,fn){
     let domCode = document.querySelector('#code')
+    domCode.innerHTML = prefix || ''
     let n = 0
     let id = setInterval(() => {
         n += 1
+        //取出给定的代码并设置css形式的高亮
         domCode.innerHTML = Prism.highlight(prefix + code.substring(0,n),Prism.languages.css);
+        //把给定的代码放到style标签里面
         styleTag.innerHTML = prefix + code.substring(0,n)
+        //设置页面自动往下
         domCode.scrollTop = domCode.scrollHeight
         if(n >= code.length){
             window.clearInterval(id)
+            //回调fn()
             fn && fn.call()
         }
-    },60)
+    },50)
 }
 
+//在页面中写Markdown
 function writeMarkdown(markdown,fn){
     let domPaper = document.querySelector('#paper>.content')
     let n = 0
@@ -28,42 +34,61 @@ function writeMarkdown(markdown,fn){
     },40)
 }
 
+
 var css1 = `/* 
  * 面试官你好，我是XXX
- * 只用文字作做我介绍太单调了
- * 我就用代码来介绍吧
+ * 只用文字作自我介绍太单调了
+ * 我就用一些代码来介绍吧
  * 首先准备一些样式
  */
 
 *{
   transition: all 1s;
 }
+
+/* 背景太单调了，我们先来一点背景吧*/
+
 html{
-  background: #eee;
+  background: #ccc;
 }
 #code{
   border: 1px solid #aaa;
-  padding: 16px;
+  padding: 20px;
 }
 
-/* 来一点代码高亮 */
+/* 先来一点代码高亮 */
 
 .token.selector{ color: #690; }
 .token.property{ color: #905; }
 
-/* 在加上一个呼吸效果吧 */
+/* 再加上一个呼吸效果吧 */
 
 #code{
   animation: breath 0.5s infinite alternate-reverse;
 }
 
+/* 然后再来一个 3D 的效果 */
+
+html{
+  perspective: 1000px;
+}
+
+#code{
+  transition: none;
+  transform: rotateY(10deg) translateZ(-100px) ;
+}
+
 /* 好了现在正式开始 */
 
-/* 我需要一张白纸 */
+/* 我需要准备一张白纸，请稍等 ^_^ */
 
-#code-wrapper{
-  width: 50%; left: 0; position: fixed; 
-  height: 100%;
+#paper{
+  position: fixed; right: 0; top: 0;
+  padding: 10px;  margin: 10px;
+  width: 50vw; height: 95vh;
+  border:1px solid #333;
+  background: white;
+  overflow: auto;
 }
 
 #paper > .content {
@@ -73,12 +98,13 @@ html{
 /* 下面我就可以在白纸上写字了，请看右边 */
 `
 
-
 var css2 = `
 /*
- * 接下来把 Markdown 变成 HTML
+ * 接下来用一个 Markdown 的库
+ * 把 Markdown 变成 HTML
  */
 `
+
 var md = `
 ## 自我介绍
 
@@ -105,7 +131,6 @@ XXX 学校毕业
 * 手机 18437767656
 `
 
-
 let css3 = `
 /*
  * 好了
@@ -114,12 +139,14 @@ let css3 = `
  */
 `
 
+//回调金字塔
 writeCss('', css1, ()=>{ 
     createPaper(() => {
       writeMarkdown(md, ()=> {
         writeCss(css1, css2, ()=>{
           convertMarkdownToHtml(()=>{
             writeCss(css1 + css2, css3, ()=> {
+              console.log('代码写完了!')
             })
           })
         })
@@ -128,6 +155,7 @@ writeCss('', css1, ()=>{
   })
   
 
+//创建一张白纸
 function createPaper(fn){
     var paper = document.createElement('div')
     paper.id = 'paper'
@@ -138,6 +166,7 @@ function createPaper(fn){
     fn && fn.call()
 }
 
+//把Markdown转换成html
 function convertMarkdownToHtml(fn){
     var div = document.createElement('div')
     div.className = 'html markdown-body'
